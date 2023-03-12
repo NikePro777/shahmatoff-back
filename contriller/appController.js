@@ -1,5 +1,9 @@
 const nodemailer = require("nodemailer");
+const mailgen = require("mailgen");
+const { EMAIL, PASSWORD } = require("../env.js");
+const Mailgen = require("mailgen");
 
+/** send mail from testing account */
 const signup = async (req, res) => {
   let testAccount = await nodemailer.createTestAccount();
 
@@ -23,14 +27,43 @@ const signup = async (req, res) => {
 
   transporter
     .sendMail(message)
-    .then(() => {
-      return res.status(201).json({ msg: "you message send to email" });
+    .then((info) => {
+      return res.status(201).json({
+        msg: "you message send to email",
+        info: info.messageId,
+        preview: nodemailer.getTestMessageUrl(info),
+      });
     })
     .catch((error) => {
       return res.status(500).json({ error });
     });
 
-  res.status(201).json("Signup Successfully...!");
+  // res.status(201).json("Signup Successfully...!");
+};
+
+/** send mail from real gmail account */
+
+let config = {
+  service: "gmail",
+  auth: {
+    user: EMAIL,
+    pass: PASSWORD,
+  },
+};
+
+let transporter = nodemailer.createTransport(config);
+
+let mailGenerator = new Mailgen({
+  theme: "default",
+  product: {
+    name: "Mailgen",
+    link: "https://mailgen.js/",
+  },
+});
+
+let response = {
+  body: name,
+  intro: "bill has arrived!",
 };
 
 const getbill = (req, res) => {
