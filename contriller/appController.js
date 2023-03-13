@@ -1,5 +1,4 @@
 const nodemailer = require("nodemailer");
-const mailgen = require("mailgen");
 const { EMAIL, PASSWORD } = require("../env.js");
 const Mailgen = require("mailgen");
 
@@ -43,31 +42,65 @@ const signup = async (req, res) => {
 
 /** send mail from real gmail account */
 
-let config = {
-  service: "gmail",
-  auth: {
-    user: EMAIL,
-    pass: PASSWORD,
-  },
-};
-
-let transporter = nodemailer.createTransport(config);
-
-let mailGenerator = new Mailgen({
-  theme: "default",
-  product: {
-    name: "Mailgen",
-    link: "https://mailgen.js/",
-  },
-});
-
-let response = {
-  body: name,
-  intro: "bill has arrived!",
-};
-
 const getbill = (req, res) => {
-  res.status(201).json("getbill Successfully...!");
+  const { userEmail } = req.body;
+
+  let config = {
+    service: "gmail",
+    auth: {
+      user: EMAIL,
+      pass: PASSWORD,
+    },
+  };
+
+  let transporter = nodemailer.createTransport(config);
+
+  let mailGenerator = new Mailgen({
+    theme: "default",
+    product: {
+      name: "Женек пенек",
+      link: "https://mailgen.js/",
+    },
+  });
+
+  let response = {
+    body: {
+      name: "Jeka",
+      intro: "Лизка писька)",
+      table: {
+        data: [
+          {
+            item: "Лиза молодец",
+            description: "иди помойся",
+            price: "побыстрее",
+          },
+        ],
+      },
+      outro: "Заранее с легким паром",
+    },
+  };
+
+  let mail = mailGenerator.generate(response);
+
+  let message = {
+    from: EMAIL,
+    to: userEmail,
+    subject: "Place Order",
+    html: mail,
+  };
+
+  transporter
+    .sendMail(message)
+    .then(() => {
+      return res.status(201).json({
+        msg: "send to you mail",
+      });
+    })
+    .catch((error) => {
+      return res.status(500).json({ error });
+    });
+
+  // res.status(201).json("getbill Successfully...!");
 };
 
 module.exports = {
